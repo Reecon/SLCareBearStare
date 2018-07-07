@@ -9,13 +9,13 @@ i.e.
 kaypikefashion "$touserid is THE Bodypainter -> $url"
 
 ## AlertBox
-You need to add a client id from twitch to use the on screen alert as it makes a request to twitch's api
-see for more info https://dev.twitch.tv/docs/v5/
+You need to add a client id from twitch to use the on screen alert as it makes a request to twitch's api.
+See for more info https://dev.twitch.tv/docs/v5/
 
 CSS classes for the alert box to customize in OBS are
 'alertbox' for the entire box
 'logo' for the profile picture
-'respnse' for the response text
+'response' for the response text
 
 i.e.
 ```
