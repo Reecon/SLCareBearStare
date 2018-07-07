@@ -18,11 +18,14 @@ CSS classes for the alert box to customize in OBS are
 'respnse' for the response text
 
 i.e.
+```
 .logo{float: right;}
 .response {font-size:42px; color: red;}
 .alertbox{background-color: blue;}
+```
 
 with fancy animation (paste into OBS custom ccs window)
+```
 body { background-color: rgba(0, 0, 0, 0); margin: 0px auto; overflow: hidden; }
 .logo{
     float: left; 
@@ -48,3 +51,4 @@ div .alertbox {
     95%  {right:0px;}
     100% {right:-800px;}
 }
+```
