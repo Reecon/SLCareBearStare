@@ -1,0 +1,83 @@
+<html>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+<script src="API_Key.js"></script>
+
+<body>
+  <div id="app">
+    <div v-html="my_event"></div>
+  </div>
+</body>
+
+
+<script>
+  var vm = new Vue({
+    el: '#app',
+    data: {
+      last_event: "",
+      my_event: "",
+      serviceUrl: "",
+      socket: Object
+    },
+    mounted: function () {
+      //---------------------------------
+      //  Variables
+      //---------------------------------
+      this.serviceUrl = API_Socket;
+      this.socket = new WebSocket(this.serviceUrl);
+
+      //---------------------------------
+      //  Open Event
+      //---------------------------------
+      this.socket.onopen = function () {
+        // Format your Authentication Information
+        var auth = {
+          author: 'Reecon820',
+          website: 'reecon820@gmail.com',
+          api_key: API_Key,
+          events: ['EVENT_STARE']
+        };
+
+        //  Send your Data to the server
+        vm.socket.send(JSON.stringify(auth));
+      };
+
+      //---------------------------------
+      //  Error Event
+      //---------------------------------
+      this.socket.onerror = function (error) {
+        //  Something went terribly wrong... Respond?!
+        console.log('Error: ' + error);
+      };
+
+      //---------------------------------
+      //  Message Event
+      //---------------------------------
+      this.socket.onmessage = function (message) {
+        console.log(message);
+        
+        var json = JSON.parse(message.data);
+        console.log(json);
+
+        if(json.event == 'EVENT_STARE') {
+          var data = JSON.parse(json.data);
+          console.log(data);
+          vm.my_event = 
+            `<div class="alertbox ${message.timeStamp}">
+              <img class="logo" src="${data.logo}"></img>
+              <div class="response">${data.response}</div>
+            <div>`;
+        }
+      };
+
+      //---------------------------------
+      //  Message Event
+      //---------------------------------
+      this.socket.onclose = function () {
+        //  Connection has been closed by you or the server
+        console.log("Connection Closed!");
+      };
+    }
+  });
+</script>
+
+</html>

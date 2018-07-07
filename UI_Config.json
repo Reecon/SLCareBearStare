@@ -1,0 +1,64 @@
+﻿{
+    "Command": {
+        "group": "Core", 
+        "label": "Command", 
+        "tooltip": "The trigger command", 
+        "type": "textbox", 
+        "value": "!stare"
+    }, 
+    "Cooldown": {
+        "group": "Core", 
+        "label": "Cooldown (seconds)", 
+        "max": 100, 
+        "min": 0, 
+        "ticks": 1, 
+        "tooltip": "How long the command should go on cooldown for", 
+        "type": "slider", 
+        "value": 10
+    }, 
+    "Info": {
+        "group": "Core", 
+        "label": "Info", 
+        "tooltip": "This field should only be filled when using the user_specific permission.", 
+        "type": "textbox", 
+        "value": ""
+    }, 
+    "Permission": {
+        "group": "Core", 
+        "items": [
+            "everyone", 
+            "moderator", 
+            "subscriber", 
+            "user_specific", 
+            "editor"
+        ], 
+        "label": "Permission", 
+        "tooltip": "Who is able to use the command", 
+        "type": "dropdown", 
+        "value": "moderator"
+    }, 
+    "ShowAlert": {
+        "group": "Core", 
+        "label": "Show alert on screen", 
+        "tooltip": "Activate to toggle an on screen browser source event.", 
+        "type": "checkbox", 
+        "value": true
+    }, 
+    "btnCopy": {
+        "function": "CopyPath", 
+        "group": "Core", 
+        "label": "Copy Overlay Path to Clipboard", 
+        "tooltip": "Copies the local file path to the overlay to the clipboard ", 
+        "type": "button", 
+        "wsevent": "EVENT_NONE"
+    }, 
+    "btnStart": {
+        "function": "EditConfigFile", 
+        "group": "Core", 
+        "label": "Edit File", 
+        "tooltip": "Opens editor to edit the stares file - Save settings or reload script after editing", 
+        "type": "button", 
+        "wsevent": "EVENT_NONE"
+    }, 
+    "output_file": "Settings/settings.json"
+}

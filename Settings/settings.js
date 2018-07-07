@@ -1,0 +1,1 @@
+﻿var settings = {"Permission": "moderator", "Cooldown": 10, "ShowAlert": true, "Command": "!stare", "Info": ""};
