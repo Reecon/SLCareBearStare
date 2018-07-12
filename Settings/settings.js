@@ -1,1 +1,1 @@
-﻿var settings = {"Permission": "moderator", "Cooldown": 10, "ShowAlert": true, "Command": "!stare", "Info": ""};
+﻿var settings = {"Permission": "moderator", "Info": "", "bSuffix": "", "Cooldown": 10.0, "ShowDecorationAlert": false, "CommandAlts": "!so !shoutout", "ShowAlert": true, "Command": "!stare", "aPrefix": ""};

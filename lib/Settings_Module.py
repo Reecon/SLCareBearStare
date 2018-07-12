@@ -12,7 +12,11 @@ class MySettings(object):
 			self.Cooldown = 10
 			self.Permission = "everyone"
 			self.Info = ""
-			self.ShowAlert = "false"
+			self.ShowAlert = False
+			self.aPrefix = "" 
+			self.bSuffix = ""
+			self.CommandAlts = ""
+			self.ShowDecorationAlert = False
 
 	def Reload(self, jsondata):
 		self.__dict__ = json.loads(jsondata, encoding="utf-8")

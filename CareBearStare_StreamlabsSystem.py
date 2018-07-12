@@ -21,7 +21,7 @@ ScriptName = "CareBearStare"
 Website = "reecon820@gmail.com"
 Description = "Target specific shoutouts with a single command"
 Creator = "Reecon820"
-Version = "1.0.0.0"
+Version = "1.0.1.0"
 
 #---------------------------
 #   Define Global Variables
@@ -66,6 +66,9 @@ def Init():
     ui['Permission']['value'] = ScriptSettings.Permission
     ui['Info']['value'] = ScriptSettings.Info
     ui['ShowAlert']['value'] = ScriptSettings.ShowAlert
+    ui['aPrefix']['value'] = ScriptSettings.aPrefix
+    ui['bSuffix']['value'] = ScriptSettings.bSuffix
+    ui['CommandAlts']['value'] = ScriptSettings.CommandAlts
 
     try:
         with codecs.open(UiFilePath, encoding="utf-8-sig", mode="w+") as f:
@@ -90,11 +93,13 @@ def Init():
 #---------------------------
 def Execute(data):
     #   only handle messages from chat
-    if data.IsChatMessage() and data.GetParam(0).lower() == ScriptSettings.Command and not Parent.IsOnCooldown(ScriptName, ScriptSettings.Command) and Parent.HasPermission(data.User, ScriptSettings.Permission, ScriptSettings.Info):
+    if data.IsChatMessage() and (data.GetParam(0).lower() == ScriptSettings.Command or data.GetParam(0).lower() in ScriptSettings.CommandAlts) and not Parent.IsOnCooldown(ScriptName, ScriptSettings.Command) and Parent.HasPermission(data.User, ScriptSettings.Permission, ScriptSettings.Info):
 
         found = False
         target = ''
         response = ''
+        prefix = ScriptSettings.aPrefix
+        suffix = ScriptSettings.bSuffix
 
         # check if target was given
         if data.GetParam(1):
@@ -109,11 +114,13 @@ def Execute(data):
             response = StareDict['default']
         
         # replace params in response string
-        response = response.replace('$targetname', target)
-        response = response.replace('$url', 'https://www.twitch.tv/{0}'.format(target.lower()))
+        response = Parse(response, data.UserName, data.UserName, target, target, data.Message)
+        prefix = Parse(prefix, data.UserName, data.UserName, target, target, data.Message)
+        suffix = Parse(suffix, data.UserName, data.UserName, target, target, data.Message)
 
         # show alert?
         if ScriptSettings.ShowAlert:
+            
             # get profile picture link
             headers = {'Client-ID': ClientID, 'Accept': 'application/vnd.twitchtv.v5+json'}
             result = Parent.GetRequest("https://api.twitch.tv/kraken/users?login={0}".format(target.lower()), headers)
@@ -122,18 +129,24 @@ def Execute(data):
 
             if jsonResult['status'] != 200:
                 Parent.Log(ScriptName, "{0}".format(jsonResult))
-                return
             else:
                 jsonResult = json.loads(jsonResult['response'])
                 if jsonResult['users']:
                     jsonResult = jsonResult['users'][0]
+
+                    if ScriptSettings.ShowDecorationAlert:
+                        response = "{0} {1} {2}".format(prefix.strip(), response.strip(), suffix.strip())
+                    
+                    jsonData = '{{"response": "{0}", "logo": "{1}" }}'.format(response, jsonResult['logo'])
+                    Parent.BroadcastWsEvent("EVENT_STARE", jsonData)
                 else:
+                    # don't do a shoutout if the user doesn't exist
                     Parent.Log(ScriptName, "Unknown Twitch Username")
                     return
-            
-            jsonData = '{{"response": "{0}", "logo": "{1}" }}'.format(response, jsonResult['logo'])
-            
-            Parent.BroadcastWsEvent("EVENT_STARE", jsonData)
+        
+        # if the option is active this is already done
+        if not ScriptSettings.ShowDecorationAlert:
+            response = "{0} {1} {2}".format(prefix.strip(), response.strip(), suffix.strip())
         
         Parent.SendStreamMessage(response)    # Send message to chat
         Parent.AddCooldown(ScriptName, ScriptSettings.Command, ScriptSettings.Cooldown)  # Put the command on cooldown
@@ -150,6 +163,12 @@ def Tick():
 #   [Optional] Parse method (Allows you to create your own custom $parameters) 
 #---------------------------
 def Parse(parseString, userid, username, targetid, targetname, message):
+    parseString = parseString.replace('$userid', userid)
+    parseString = parseString.replace('$username', username)
+    parseString = parseString.replace('$targetid', targetid)
+    parseString = parseString.replace('$targetname', targetname)
+    parseString = parseString.replace('$url', 'https://www.twitch.tv/{0}'.format(targetname.lower()))
+    parseString = parseString.replace('$shorturl', 'twitch.tv/{0}'.format(targetname.lower()))
     return parseString
 
 #---------------------------

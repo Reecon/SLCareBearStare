@@ -1,16 +1,20 @@
 Gives you the ability to have target specific shoutouts for channel friends with only one command
 
-default message will be shown if the target has no configured blurp
+default message will be shown if the target has no configured blurb
 
-supported parameters are $targetname for the targets username and $url for the targets twitch url
+supported parameters are:
+- $targetname for the targets username 
+- $url for the targets twitch url `https://www.twitch.tv/targetname`
+- $shorturl shorter version of the twitch url `twitch.tv/targetname`
 
 one target per line, line beginning with target's username followed by a space and the response enclosed by quotation marks
 i.e.
-kaypikefashion "$touserid is THE Bodypainter -> $url"
+```
+kaypikefashion "$targetname is THE Bodypainter -> $url"
+```
 
 ## AlertBox
-You need to add a client id from twitch to use the on screen alert as it makes a request to twitch's api.
-See for more info https://dev.twitch.tv/docs/v5/
+You need to add a client id from twitch to use the on screen alert as it makes a request to twitch's api. See for more info https://dev.twitch.tv/docs/v5/
 
 CSS classes for the alert box to customize in OBS are
 'alertbox' for the entire box

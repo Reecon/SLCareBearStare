@@ -6,6 +6,13 @@
         "type": "textbox", 
         "value": "!stare"
     }, 
+    "CommandAlts": {
+        "group": "Core", 
+        "label": "Command Alternatives", 
+        "tooltip": "Alternative triggers for the command seperated by spaces", 
+        "type": "textbox", 
+        "value": "!so !shoutout"
+    }, 
     "Cooldown": {
         "group": "Core", 
         "label": "Cooldown (seconds)", 
@@ -14,7 +21,7 @@
         "ticks": 1, 
         "tooltip": "How long the command should go on cooldown for", 
         "type": "slider", 
-        "value": 10
+        "value": 10.0
     }, 
     "Info": {
         "group": "Core", 
@@ -43,6 +50,27 @@
         "tooltip": "Activate to toggle an on screen browser source event.", 
         "type": "checkbox", 
         "value": true
+    }, 
+    "ShowDecorationAlert": {
+        "group": "Core", 
+        "label": "Show Prefex and Suffix on Screen?", 
+        "tooltip": "Activate to show the prefix and suffix decoration in the on-screen alert", 
+        "type": "checkbox", 
+        "value": false
+    }, 
+    "aPrefix": {
+        "group": "Core", 
+        "label": "Prefix", 
+        "tooltip": "Text before the blurb", 
+        "type": "textbox", 
+        "value": ""
+    }, 
+    "bSuffix": {
+        "group": "Core", 
+        "label": "Suffix", 
+        "tooltip": "Text after the blurb", 
+        "type": "textbox", 
+        "value": ""
     }, 
     "btnCopy": {
         "function": "CopyPath", 
