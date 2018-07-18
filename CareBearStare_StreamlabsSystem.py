@@ -21,7 +21,7 @@ ScriptName = "CareBearStare"
 Website = "reecon820@gmail.com"
 Description = "Target specific shoutouts with a single command"
 Creator = "Reecon820"
-Version = "1.0.1.0"
+Version = "1.0.1.1"
 
 #---------------------------
 #   Define Global Variables
