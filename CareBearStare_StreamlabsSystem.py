@@ -93,8 +93,19 @@ def Init():
 #---------------------------
 def Execute(data):
     #   only handle messages from chat
-    if data.IsChatMessage() and (data.GetParam(0).lower() == ScriptSettings.Command or data.GetParam(0).lower() in ScriptSettings.CommandAlts) and not Parent.IsOnCooldown(ScriptName, ScriptSettings.Command) and Parent.HasPermission(data.User, ScriptSettings.Permission, ScriptSettings.Info):
+    if data.IsChatMessage() and not Parent.IsOnCooldown(ScriptName, ScriptSettings.Command) and Parent.HasPermission(data.User, ScriptSettings.Permission, ScriptSettings.Info):
 
+        isComamnd = data.GetParam(0).lower() == ScriptSettings.Command
+
+        if not isComamnd:
+            alts = ScriptSettings.CommandAlts.split(" ")
+            for s in alts:
+                if s == data.GetParam(0).lower():
+                    isCommand = True
+                    break
+            if not isCommand:
+                return
+                
         found = False
         target = ''
         response = ''
