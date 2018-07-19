@@ -21,7 +21,7 @@ ScriptName = "CareBearStare"
 Website = "reecon820@gmail.com"
 Description = "Target specific shoutouts with a single command"
 Creator = "Reecon820"
-Version = "1.0.1.1"
+Version = "1.0.1.2"
 
 #---------------------------
 #   Define Global Variables
@@ -95,9 +95,9 @@ def Execute(data):
     #   only handle messages from chat
     if data.IsChatMessage() and not Parent.IsOnCooldown(ScriptName, ScriptSettings.Command) and Parent.HasPermission(data.User, ScriptSettings.Permission, ScriptSettings.Info):
 
-        isComamnd = data.GetParam(0).lower() == ScriptSettings.Command
+        isCommand = data.GetParam(0).lower() == ScriptSettings.Command
 
-        if not isComamnd:
+        if not isCommand:
             alts = ScriptSettings.CommandAlts.split(" ")
             for s in alts:
                 if s == data.GetParam(0).lower():
