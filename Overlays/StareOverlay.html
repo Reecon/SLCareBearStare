@@ -1,5 +1,7 @@
 <html>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
 <script src="API_Key.js"></script>
 
 <body>
@@ -13,10 +15,62 @@
   var vm = new Vue({
     el: '#app',
     data: {
+      client_id: "",
       last_event: "",
       my_event: "",
       serviceUrl: "",
       socket: Object
+    },
+    methods: {
+      parseEmotes: function(data, message) {
+        // parse response for emotes
+        var emotes = [];
+        var url = 'https://api.twitch.tv/kraken/chat/emoticon_images?emotesets=';
+        var clientId = data.client_id;
+
+        for (setId of data.emotesets) {
+          url = url + setId + ',';
+        }
+        url = url + '0' // default emotes too
+
+        // get all emotesets
+        this.$http.get(url, {
+        headers: {'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': this.client_id}
+        })
+        .then((response) => {
+          // get all emotes from all sets
+          Object.keys(response.body.emoticon_sets).map((item) => {
+            for (emote of response.body.emoticon_sets[item]) {
+              emotes.push(emote);
+            }
+            
+            // now replace all occurences of emote codes with img tags
+            var imageUrl = 'https://static-cdn.jtvnw.net/emoticons/v1/';
+            var text = data.response;
+            console.log("text", text);
+            var words = text.split(" ");
+            for (codes of emotes) {
+              for (word of words) {
+                var re = RegExp("^" + codes.code + "$");
+                if (re.test(word)){
+                  var imageTag = '<img src="' + imageUrl + codes.id + '/3.0" style="height:1em;width:auto;transform:translateY(0.2em);"></img>';
+                  text = text.replace(word, imageTag);
+                }
+              }
+            }
+
+            console.log("new text", text);
+            //data.response = text;
+            
+            vm.my_event = 
+              `<div class="alertbox ${message.timeStamp}">
+                <img class="logo" src="${data.logo}"></img>
+                <div class="response">${text}</div>
+              <div>`;
+          });
+        });
+        
+      }
     },
     mounted: function () {
       //---------------------------------
@@ -53,19 +107,19 @@
       //  Message Event
       //---------------------------------
       this.socket.onmessage = function (message) {
-        console.log(message);
+        //console.log("message", message);
         
         var json = JSON.parse(message.data);
-        console.log(json);
+        //console.log("json", json);
 
         if(json.event == 'EVENT_STARE') {
           var data = JSON.parse(json.data);
-          console.log(data);
-          vm.my_event = 
-            `<div class="alertbox ${message.timeStamp}">
-              <img class="logo" src="${data.logo}"></img>
-              <div class="response">${data.response}</div>
-            <div>`;
+          //console.log("data", data);
+
+          vm.client_id = data.client_id;
+
+          vm.parseEmotes(data, message);
+
         }
       };
 
