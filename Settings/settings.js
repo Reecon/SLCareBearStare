@@ -1,1 +1,1 @@
-﻿var settings = {"Permission": "moderator", "Info": "", "bSuffix": "", "Cooldown": 10.0, "ShowDecorationAlert": false, "CommandAlts": "!so !shoutout", "ShowAlert": true, "Command": "!stare", "aPrefix": ""};
+﻿var settings = {"Permission": "moderator", "Info": "", "bSuffix": "bleedPurple bleedPurple bleedPurple bleedPurple ", "Cooldown": 10.0, "ShowDecorationAlert": true, "CommandAlts": "!so !shoutout", "BotSubTier": 0, "ShowAlert": true, "Command": "!stare", "aPrefix": "bleedPurple bleedPurple bleedPurple bleedPurple "};

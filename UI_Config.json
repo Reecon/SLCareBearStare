@@ -63,14 +63,14 @@
         "label": "Prefix", 
         "tooltip": "Text before the blurb", 
         "type": "textbox", 
-        "value": ""
+        "value": "bleedPurple bleedPurple bleedPurple bleedPurple "
     }, 
     "bSuffix": {
         "group": "Core", 
         "label": "Suffix", 
         "tooltip": "Text after the blurb", 
         "type": "textbox", 
-        "value": ""
+        "value": "bleedPurple bleedPurple bleedPurple bleedPurple "
     }, 
     "btnCopy": {
         "function": "CopyPath", 
