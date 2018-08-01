@@ -17,6 +17,7 @@ class MySettings(object):
 			self.bSuffix = ""
 			self.CommandAlts = ""
 			self.ShowDecorationAlert = False
+			self.Tripwire = False
 
 	def Reload(self, jsondata):
 		self.__dict__ = json.loads(jsondata, encoding="utf-8")
