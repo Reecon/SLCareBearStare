@@ -21,7 +21,7 @@ ScriptName = "CareBearStare"
 Website = "reecon820@gmail.com"
 Description = "Target specific shoutouts with a single command"
 Creator = "Reecon820"
-Version = "1.1.0.0"
+Version = "1.1.1.0"
 
 #---------------------------
 #   Define Global Variables
@@ -35,6 +35,9 @@ StareDict = {}
 
 global StarePath
 StarePath = os.path.abspath(os.path.join(os.path.dirname(__file__), "stares.conf")).replace("\\", "/")
+
+global AutoShoutouts
+AutoShoutouts = set()
 
 #---------------------------
 #   [Required] Initialize Data (Only called on load)
@@ -69,6 +72,8 @@ def Init():
     ui['aPrefix']['value'] = ScriptSettings.aPrefix
     ui['bSuffix']['value'] = ScriptSettings.bSuffix
     ui['CommandAlts']['value'] = ScriptSettings.CommandAlts
+    ui['ShowDecorationAlert']['value'] = ScriptSettings.ShowDecorationAlert
+    ui['Tripwire']['value'] = ScriptSettings.Tripwire
 
     try:
         with codecs.open(UiFilePath, encoding="utf-8-sig", mode="w+") as f:
@@ -79,8 +84,12 @@ def Init():
     # read client id for api access from file
     try:
         with codecs.open(os.path.join(os.path.dirname(__file__), "clientid.conf"), mode='r', encoding='utf-8-sig') as f:
-            global ClientID
-            ClientID = f.readline()
+            for line in f:
+                line = line.strip()
+                if len(line) > 0:
+                    if line[0] != '#':
+                        global ClientID
+                        ClientID = line
     except Exception as err:
         Parent.Log(ScriptName, "{0}".format(err))
 
@@ -93,7 +102,17 @@ def Init():
 #---------------------------
 def Execute(data):
     #   only handle messages from chat
-    if data.IsChatMessage() and not Parent.IsOnCooldown(ScriptName, ScriptSettings.Command) and Parent.HasPermission(data.User, ScriptSettings.Permission, ScriptSettings.Info):
+    if data.IsChatMessage():
+        rawMessage = data.RawData
+        isPartner = False
+
+        # get tags
+        tags = rawMessage.split(" ")[0]
+
+        if 'partner/1' in tags and ScriptSettings.Tripwire:
+            if data.UserName not in AutoShoutouts:
+                AutoShoutouts.add(data.UserName)
+                isPartner = True
 
         isCommand = data.GetParam(0).lower() == ScriptSettings.Command
 
@@ -103,10 +122,11 @@ def Execute(data):
                 if s == data.GetParam(0).lower():
                     isCommand = True
                     break
-            if not isCommand:
-                return
-                
-        found = False
+        
+        # if this is neither a partner tripwire nor a regular, propper shoutout, no need to keep going
+        if not isPartner and not (isCommand and not Parent.IsOnCooldown(ScriptName, ScriptSettings.Command) and Parent.HasPermission(data.User, ScriptSettings.Permission, ScriptSettings.Info)):
+            return
+
         target = ''
         response = ''
         prefix = ScriptSettings.aPrefix
@@ -118,6 +138,12 @@ def Execute(data):
             if target[0] == '@':
                 target = target[1:]
         
+        if isPartner:
+            target = data.UserName
+        
+        if not target:
+            return
+
         # check if target has custom shoutout
         if target.lower() in StareDict:
             response = StareDict[target.lower()]
@@ -156,7 +182,8 @@ def Execute(data):
                         jsonEmotes = json.loads(productInfo)
 
                         if jsonEmotes['status'] != 200:
-                            Parent.Log(ScriptName, "Error getting emotesets: {0}".format(jsonResult))
+                            if jsonEmotes['status'] != 404: # surpress errors for non-partnered channels
+                                Parent.Log(ScriptName, "Error getting emotesets: {0}".format(jsonEmotes))
                         else:
                             jsonEmotes = json.loads(jsonEmotes['response'])
                             emotes = jsonEmotes['emoticons']
@@ -230,9 +257,12 @@ def LoadConfigFile():
         with codecs.open(StarePath, encoding="utf-8-sig", mode="r") as f:
             matches = {}
             for line in f:
-                user = line.split(" ")[0].lower()
-                response = re.search("\".*\"", line).group(0).strip('"')
-                matches[user] = response
+                line = line.strip()
+                if len(line) > 0:
+                    if line[0] != '#':
+                        user = line.split(" ")[0].lower()
+                        response = re.search("\".*\"", line).group(0).strip('"')
+                        matches[user] = response
 
             global StareDict
             StareDict = matches
@@ -242,6 +272,6 @@ def LoadConfigFile():
     return
 
 def CopyPath():
-    command = "echo " + os.path.abspath(os.path.join(os.path.dirname(__file__), "Overlays/StareOverlay.html")) + "| clip"
+    command = "echo " + os.path.abspath(os.path.join(os.path.dirname(__file__), "StareOverlay.html")) + "| clip"
     os.system(command)
     return

@@ -56,7 +56,14 @@
         "label": "Show Prefex and Suffix on Screen?", 
         "tooltip": "Activate to show the prefix and suffix decoration in the on-screen alert", 
         "type": "checkbox", 
-        "value": false
+        "value": true
+    }, 
+    "Tripwire": {
+        "group": "Core", 
+        "label": "Autoshoutout Partnered Streamers?", 
+        "tooltip": "Activate to trigger an automatic shoutout on a partnered streamer's first message", 
+        "type": "checkbox", 
+        "value": true
     }, 
     "aPrefix": {
         "group": "Core", 
