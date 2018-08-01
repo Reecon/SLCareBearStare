@@ -1,6 +1,8 @@
-Gives you the ability to have target specific shoutouts for channel friends with only one command
+Gives you the ability to have target specific shoutouts for channel friends with only one command.
 
-default message will be shown if the target has no configured blurb
+A default message will be shown if the target has no configured blurb.
+
+You can also set an option automatically shout out streamers with the partnered badge on their first message in chat.
 
 supported parameters are:
 - $targetname for the targets username 
@@ -12,6 +14,15 @@ i.e.
 ```
 kaypikefashion "$targetname is THE Bodypainter -> $url"
 ```
+
+### Installation
+* Download the [latest release](https://github.com/Reecon/SLCareBearStare/releases/latest)
+* Import the zip-file into the bot
+* Open the scripts-folder and remove the the `.example` file extension from `clientid.conf.example` and `stares.conf.example` and reload the script
+* Right-click the script in the bot and select "Insert API Key" and confirm
+* Click the `Copy Overlaypath to Clipboard` button and use this as the path to a local browser source in your streaming software
+
+__Note:__ The client-id is only neccesarry when you use the overlay as it queries data from the Twitch API.
 
 ## AlertBox
 You need to add a client id from twitch to use the on screen alert as it makes a request to twitch's api. See for more info https://dev.twitch.tv/docs/v5/

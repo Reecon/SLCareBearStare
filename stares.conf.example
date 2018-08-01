@@ -1,1 +1,11 @@
+# palce your custom shoutouts here
+#
+# format is username followed by the shoutout text encapsulated by quotation marks
+# <username> "<shoutout>"
+#
+# suported variables for responses are:
+# $targetname: username of shoutout target
+# $url: target's channel url in the form https://www.twitch.tv/$targetname
+# $shorturl: short channel url in the form twitch.tv/$targetname
+
 default "Everyone check out the delightful $targetname at $url and drop a follow!"
