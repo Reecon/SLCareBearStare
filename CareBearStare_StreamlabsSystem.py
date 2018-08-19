@@ -12,8 +12,6 @@ import clr
 clr.AddReference("IronPython.SQLite.dll")
 clr.AddReference("IronPython.Modules.dll")
 
-#   Import your Settings class
-from Settings_Module import MySettings
 #---------------------------
 #   [Required] Script Information
 #---------------------------
@@ -21,23 +19,55 @@ ScriptName = "CareBearStare"
 Website = "reecon820@gmail.com"
 Description = "Target specific shoutouts with a single command"
 Creator = "Reecon820"
-Version = "1.1.1.0"
+Version = "1.1.2.0"
+
+#---------------------------
+#   Settings Handling
+#---------------------------
+class CbsSettings:
+	def __init__(self, settingsfile=None):
+		try:
+			with codecs.open(settingsfile, encoding="utf-8-sig", mode="r") as f:
+				self.__dict__ = json.load(f, encoding="utf-8")
+		except:
+			self.Command = "!stare"
+			self.Cooldown = 10
+			self.Permission = "everyone"
+			self.Info = ""
+			self.ShowAlert = False
+			self.aPrefix = "" 
+			self.bSuffix = ""
+			self.CommandAlts = ""
+			self.ShowDecorationAlert = False
+			self.Tripwire = False
+
+	def Reload(self, jsondata):
+		self.__dict__ = json.loads(jsondata, encoding="utf-8")
+
+	def Save(self, settingsfile):
+		try:
+			with codecs.open(settingsfile, encoding="utf-8-sig", mode="w+") as f:
+				json.dump(self.__dict__, f, encoding="utf-8")
+			with codecs.open(settingsfile.replace("json", "js"), encoding="utf-8-sig", mode="w+") as f:
+				f.write("var settings = {0};".format(json.dumps(self.__dict__, encoding='utf-8')))
+		except:
+			Parent.Log(ScriptName, "Failed to save settings to file.")
 
 #---------------------------
 #   Define Global Variables
 #---------------------------
-global SettingsFile
-SettingsFile = ""
-global ScriptSettings
-ScriptSettings = MySettings()
-global StareDict
-StareDict = {}
+global cbsSettingsFile
+cbsSettingsFile = ""
+global cbsScriptSettings
+cbsScriptSettings = CbsSettings()
+global cbsStareDict
+cbsStareDict = {}
 
-global StarePath
-StarePath = os.path.abspath(os.path.join(os.path.dirname(__file__), "stares.conf")).replace("\\", "/")
+global cbsStarePath
+cbsStarePath = os.path.abspath(os.path.join(os.path.dirname(__file__), "stares.conf")).replace("\\", "/")
 
-global AutoShoutouts
-AutoShoutouts = set()
+global cbsAutoShoutouts
+cbsAutoShoutouts = set()
 
 #---------------------------
 #   [Required] Initialize Data (Only called on load)
@@ -50,36 +80,10 @@ def Init():
         os.makedirs(directory)
 
     #   Load settings
-    global SettingsFile
-    SettingsFile = os.path.join(os.path.dirname(__file__), "Settings\settings.json")
-    global ScriptSettings
-    ScriptSettings = MySettings(SettingsFile)
-
-    ui = {}
-    UiFilePath = os.path.join(os.path.dirname(__file__), "UI_Config.json")
-    try:
-        with codecs.open(UiFilePath, encoding="utf-8-sig", mode="r") as f:
-            ui = json.load(f, encoding="utf-8")
-    except Exception as err:
-        Parent.Log(ScriptName, "{0}".format(err))
-
-    # update ui with loaded settings
-    ui['Command']['value'] = ScriptSettings.Command
-    ui['Cooldown']['value'] = ScriptSettings.Cooldown
-    ui['Permission']['value'] = ScriptSettings.Permission
-    ui['Info']['value'] = ScriptSettings.Info
-    ui['ShowAlert']['value'] = ScriptSettings.ShowAlert
-    ui['aPrefix']['value'] = ScriptSettings.aPrefix
-    ui['bSuffix']['value'] = ScriptSettings.bSuffix
-    ui['CommandAlts']['value'] = ScriptSettings.CommandAlts
-    ui['ShowDecorationAlert']['value'] = ScriptSettings.ShowDecorationAlert
-    ui['Tripwire']['value'] = ScriptSettings.Tripwire
-
-    try:
-        with codecs.open(UiFilePath, encoding="utf-8-sig", mode="w+") as f:
-            json.dump(ui, f, encoding="utf-8", indent=4, sort_keys=True)
-    except Exception as err:
-        Parent.Log(ScriptName, "{0}".format(err))
+    global cbsSettingsFile
+    cbsSettingsFile = os.path.join(os.path.dirname(__file__), "Settings\settings.json")
+    global cbsScriptSettings
+    cbsScriptSettings = CbsSettings(cbsSettingsFile)
 
     # read client id for api access from file
     try:
@@ -109,28 +113,28 @@ def Execute(data):
         # get tags
         tags = rawMessage.split(" ")[0]
 
-        if 'partner/1' in tags and ScriptSettings.Tripwire:
-            if data.UserName not in AutoShoutouts:
-                AutoShoutouts.add(data.UserName)
+        if 'partner/1' in tags and cbsScriptSettings.Tripwire:
+            if data.UserName not in cbsAutoShoutouts:
+                cbsAutoShoutouts.add(data.UserName)
                 isPartner = True
 
-        isCommand = data.GetParam(0).lower() == ScriptSettings.Command
+        isCommand = data.GetParam(0).lower() == cbsScriptSettings.Command
 
         if not isCommand:
-            alts = ScriptSettings.CommandAlts.split(" ")
+            alts = cbsScriptSettings.CommandAlts.split(" ")
             for s in alts:
                 if s == data.GetParam(0).lower():
                     isCommand = True
                     break
         
         # if this is neither a partner tripwire nor a regular, propper shoutout, no need to keep going
-        if not isPartner and not (isCommand and not Parent.IsOnCooldown(ScriptName, ScriptSettings.Command) and Parent.HasPermission(data.User, ScriptSettings.Permission, ScriptSettings.Info)):
+        if not isPartner and not (isCommand and not Parent.IsOnCooldown(ScriptName, cbsScriptSettings.Command) and Parent.HasPermission(data.User, cbsScriptSettings.Permission, cbsScriptSettings.Info)):
             return
 
         target = ''
         response = ''
-        prefix = ScriptSettings.aPrefix
-        suffix = ScriptSettings.bSuffix
+        prefix = cbsScriptSettings.aPrefix
+        suffix = cbsScriptSettings.bSuffix
 
         # check if target was given
         if data.GetParam(1):
@@ -145,10 +149,10 @@ def Execute(data):
             return
 
         # check if target has custom shoutout
-        if target.lower() in StareDict:
-            response = StareDict[target.lower()]
+        if target.lower() in cbsStareDict:
+            response = cbsStareDict[target.lower()]
         else:
-            response = StareDict['default']
+            response = cbsStareDict['default']
         
         # replace params in response string
         response = Parse(response, data.UserName, data.UserName, target, target, data.Message)
@@ -156,7 +160,7 @@ def Execute(data):
         suffix = Parse(suffix, data.UserName, data.UserName, target, target, data.Message)
 
         # show alert?
-        if ScriptSettings.ShowAlert:
+        if cbsScriptSettings.ShowAlert:
             
             # get profile picture link
             headers = {'Client-ID': ClientID, 'Accept': 'application/vnd.twitchtv.v5+json'}
@@ -174,7 +178,7 @@ def Execute(data):
 
                     emotesets = []
 
-                    if ScriptSettings.ShowDecorationAlert:
+                    if cbsScriptSettings.ShowDecorationAlert:
                         response = "{0} {1} {2}".format(prefix.strip(), response.strip(), suffix.strip())
                     
                         # undocumented api endpoint from https://discuss.dev.twitch.tv/t/whats-the-best-way-to-get-a-streamers-emoteset/11253 
@@ -200,11 +204,11 @@ def Execute(data):
                     return
         
         # if the option is active this is already done
-        if not ScriptSettings.ShowDecorationAlert:
+        if not cbsScriptSettings.ShowDecorationAlert:
             response = "{0} {1} {2}".format(prefix.strip(), response.strip(), suffix.strip())
         
         Parent.SendStreamMessage(response)    # Send message to chat
-        Parent.AddCooldown(ScriptName, ScriptSettings.Command, ScriptSettings.Cooldown)  # Put the command on cooldown
+        Parent.AddCooldown(ScriptName, cbsScriptSettings.Command, cbsScriptSettings.Cooldown)  # Put the command on cooldown
 
     return
 
@@ -231,8 +235,8 @@ def Parse(parseString, userid, username, targetid, targetname, message):
 #---------------------------
 def ReloadSettings(jsonData):
     # Execute json reloading here
-    ScriptSettings.Reload(jsonData)
-    ScriptSettings.Save(SettingsFile)
+    cbsScriptSettings.Reload(jsonData)
+    cbsScriptSettings.Save(cbsSettingsFile)
     LoadConfigFile()
     return
 
@@ -249,12 +253,12 @@ def ScriptToggled(state):
     return
 
 def EditConfigFile():
-    os.startfile(StarePath)
+    os.startfile(cbsStarePath)
     return
 
 def LoadConfigFile():
     try:
-        with codecs.open(StarePath, encoding="utf-8-sig", mode="r") as f:
+        with codecs.open(cbsStarePath, encoding="utf-8-sig", mode="r") as f:
             matches = {}
             for line in f:
                 line = line.strip()
@@ -264,8 +268,8 @@ def LoadConfigFile():
                         response = re.search("\".*\"", line).group(0).strip('"')
                         matches[user] = response
 
-            global StareDict
-            StareDict = matches
+            global cbsStareDict
+            cbsStareDict = matches
     except Exception as err:
         Parent.Log(ScriptName, "Could not load stares file {0}".format(err))
 
@@ -275,3 +279,30 @@ def CopyPath():
     command = "echo " + os.path.abspath(os.path.join(os.path.dirname(__file__), "StareOverlay.html")) + "| clip"
     os.system(command)
     return
+
+def UpatedUi():
+    ui = {}
+    UiFilePath = os.path.join(os.path.dirname(__file__), "UI_Config.json")
+    try:
+        with codecs.open(UiFilePath, encoding="utf-8-sig", mode="r") as f:
+            ui = json.load(f, encoding="utf-8")
+    except Exception as err:
+        Parent.Log(ScriptName, "{0}".format(err))
+
+    # update ui with loaded settings
+    ui['Command']['value'] = cbsScriptSettings.Command
+    ui['Cooldown']['value'] = cbsScriptSettings.Cooldown
+    ui['Permission']['value'] = cbsScriptSettings.Permission
+    ui['Info']['value'] = cbsScriptSettings.Info
+    ui['ShowAlert']['value'] = cbsScriptSettings.ShowAlert
+    ui['aPrefix']['value'] = cbsScriptSettings.aPrefix
+    ui['bSuffix']['value'] = cbsScriptSettings.bSuffix
+    ui['CommandAlts']['value'] = cbsScriptSettings.CommandAlts
+    ui['ShowDecorationAlert']['value'] = cbsScriptSettings.ShowDecorationAlert
+    ui['Tripwire']['value'] = cbsScriptSettings.Tripwire
+
+    try:
+        with codecs.open(UiFilePath, encoding="utf-8-sig", mode="w+") as f:
+            json.dump(ui, f, encoding="utf-8", indent=4, sort_keys=True)
+    except Exception as err:
+        Parent.Log(ScriptName, "{0}".format(err))
