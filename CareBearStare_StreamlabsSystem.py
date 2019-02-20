@@ -19,7 +19,7 @@ ScriptName = "CareBearStare"
 Website = "reecon820@gmail.com"
 Description = "Target specific shoutouts with a single command"
 Creator = "Reecon820"
-Version = "1.1.2.0"
+Version = "1.1.2.1"
 
 #---------------------------
 #   Settings Handling
@@ -113,7 +113,7 @@ def Execute(data):
         # get tags
         tags = rawMessage.split(" ")[0]
 
-        if 'partner/1' in tags and cbsScriptSettings.Tripwire:
+        if 'partner/1' in tags and cbsScriptSettings.Tripwire and not 'broadcaster/1' in tags:
             if data.UserName not in cbsAutoShoutouts:
                 cbsAutoShoutouts.add(data.UserName)
                 isPartner = True
