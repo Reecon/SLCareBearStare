@@ -19,7 +19,7 @@ ScriptName = "CareBearStare"
 Website = "reecon820@gmail.com"
 Description = "Target specific shoutouts with a single command"
 Creator = "Reecon820"
-Version = "1.1.2.1"
+Version = "1.1.2.2"
 
 #---------------------------
 #   Settings Handling
