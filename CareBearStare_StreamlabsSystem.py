@@ -85,6 +85,8 @@ def Init():
     global cbsScriptSettings
     cbsScriptSettings = CbsSettings(cbsSettingsFile)
 
+    UpatedUi()
+
     # read client id for api access from file
     try:
         with codecs.open(os.path.join(os.path.dirname(__file__), "clientid.conf"), mode='r', encoding='utf-8-sig') as f:
@@ -238,6 +240,7 @@ def ReloadSettings(jsonData):
     cbsScriptSettings.Reload(jsonData)
     cbsScriptSettings.Save(cbsSettingsFile)
     LoadConfigFile()
+    UpatedUi()
     return
 
 #---------------------------
