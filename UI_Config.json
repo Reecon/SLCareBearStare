@@ -11,7 +11,7 @@
         "label": "Command Alternatives", 
         "tooltip": "Alternative triggers for the command seperated by spaces", 
         "type": "textbox", 
-        "value": "!so !shoutout"
+        "value": ""
     }, 
     "Cooldown": {
         "group": "Core", 
@@ -49,35 +49,42 @@
         "label": "Show alert on screen", 
         "tooltip": "Activate to toggle an on screen browser source event.", 
         "type": "checkbox", 
-        "value": true
+        "value": false
     }, 
     "ShowDecorationAlert": {
         "group": "Core", 
         "label": "Show Prefex and Suffix on Screen?", 
         "tooltip": "Activate to show the prefix and suffix decoration in the on-screen alert", 
         "type": "checkbox", 
-        "value": true
+        "value": false
     }, 
     "Tripwire": {
         "group": "Core", 
         "label": "Autoshoutout Partnered Streamers?", 
         "tooltip": "Activate to trigger an automatic shoutout on a partnered streamer's first message", 
         "type": "checkbox", 
-        "value": true
+        "value": false
+    }, 
+    "TripwireCustom": {
+        "group": "Core", 
+        "label": "Autoshoutout Streamers with custom blurb?", 
+        "tooltip": "Activate to trigger an automatic shoutout on a streamer's first message if they have a custom shoutout message", 
+        "type": "checkbox", 
+        "value": false
     }, 
     "aPrefix": {
         "group": "Core", 
         "label": "Prefix", 
         "tooltip": "Text before the blurb", 
         "type": "textbox", 
-        "value": "bleedPurple bleedPurple bleedPurple bleedPurple "
+        "value": "bleedPurple bleedPurple "
     }, 
     "bSuffix": {
         "group": "Core", 
         "label": "Suffix", 
         "tooltip": "Text after the blurb", 
         "type": "textbox", 
-        "value": "bleedPurple bleedPurple bleedPurple bleedPurple "
+        "value": "bleedPurple bleedPurple bleedPurple "
     }, 
     "btnCopy": {
         "function": "CopyPath", 
