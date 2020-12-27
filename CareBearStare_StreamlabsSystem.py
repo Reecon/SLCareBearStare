@@ -19,7 +19,7 @@ ScriptName = "CareBearStare"
 Website = "reecon820@gmail.com"
 Description = "Target specific shoutouts with a single command"
 Creator = "Reecon820"
-Version = "1.1.4.0"
+Version = "1.2.0.0"
 
 #---------------------------
 #   Settings Handling
@@ -222,27 +222,39 @@ def Execute(data):
                 jsonResult = json.loads(jsonResult['response'])
                 if jsonResult['users']:
                     jsonResult = jsonResult['users'][0]
+                    jsonUserId = jsonResult['_id']
 
                     emotesets = []
 
                     if cbsScriptSettings.ShowDecorationAlert:
                         response = "{0} {1} {2}".format(prefix.strip(), response.strip(), suffix.strip())
-                    
+
                         # undocumented api endpoint from https://discuss.dev.twitch.tv/t/whats-the-best-way-to-get-a-streamers-emoteset/11253 
-                        # TODO: endpoint removed, probably moving to this https://twitchemotes.com/apidocs
-                        productInfo = Parent.GetRequest("https://api.twitch.tv/api/channels/{0}/product".format(Parent.GetChannelName().lower()), headers)
-                        jsonEmotes = json.loads(productInfo)
+                        # twitch endpoint removed, now using https://twitchemotes.com/apidocs
+                        # get own channel id first
+                        headers = {'Client-ID': ClientID, 'Accept': 'application/vnd.twitchtv.v5+json'}
+                        ownUserResult = Parent.GetRequest("https://api.twitch.tv/kraken/users?login={0}".format(Parent.GetChannelName().lower()), headers)
+                        ownJsonResult = json.loads(ownUserResult)
+                        ownUserId = ''
+                        if ownJsonResult['status'] != 200:
+                            Parent.Log(ScriptName, "lookup own user: {0}".format(ownJsonResult))
+                            return
+                        else:
+                            ownJsonResult = json.loads(ownJsonResult['response'])
+                            if ownJsonResult['users']:
+                                ownJsonResult = ownJsonResult['users'][0]
+                                ownUserId = ownJsonResult['_id']
+
+                        emoteResult = Parent.GetRequest("https://api.twitchemotes.com/api/v4/channels/{0}".format(ownUserId), headers)
+                        jsonEmotes = json.loads(emoteResult)
 
                         if jsonEmotes['status'] != 200:
                             if jsonEmotes['status'] != 404: # surpress errors for non-partnered channels
                                 Parent.Log(ScriptName, "Error getting emotesets: {0}".format(jsonEmotes))
                         else:
                             jsonEmotes = json.loads(jsonEmotes['response'])
-                            emotes = jsonEmotes['emoticons']
-                            setIds = []
-                            for emote in emotes:
-                                setIds.append(emote['emoticon_set'])
-                            emotesets = list(set(setIds)) # remove dupilcates
+                            emotes = jsonEmotes['plans']
+                            emotesets = [int(emotes['$4.99']), int(emotes['$9.99']), int(emotes['$24.99'])]
                     
                     jsonData = '{{"response": "{0}", "logo": "{1}", "emotesets": {2}, "client_id": "{3}" }}'.format(response, jsonResult['logo'], emotesets, ClientID)
                     Parent.BroadcastWsEvent("EVENT_STARE", jsonData)

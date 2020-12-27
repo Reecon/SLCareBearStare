@@ -9,4 +9,4 @@
 # $shorturl: short channel url in the form twitch.tv/$targetname
 # $lastplayed: last game category the target streamed under
 
-default "Everyone check out the delightful $targetname at $url and drop a follow!"
+default "Everyone check out the delightful $targetname at $url last seen streaming $lastplayed and drop a follow!"
