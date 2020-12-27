@@ -8,6 +8,7 @@ supported parameters are:
 - $targetname for the targets username 
 - $url for the targets twitch url `https://www.twitch.tv/targetname`
 - $shorturl shorter version of the twitch url `twitch.tv/targetname`
+- $lastplayed last game category the target streamed under
 
 one target per line, line beginning with target's username followed by a space and the response enclosed by quotation marks
 i.e.
