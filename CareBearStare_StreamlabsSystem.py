@@ -138,6 +138,11 @@ def Execute(data):
         response = ''
         prefix = cbsScriptSettings.aPrefix
         suffix = cbsScriptSettings.bSuffix
+        lastplayed = 'N/A'
+
+        # cache any API results in case they are needed again
+        userResult = None
+        channelResult = None
 
         # check if target was given
         if data.GetParam(1):
@@ -156,20 +161,59 @@ def Execute(data):
             response = cbsStareDict[target.lower()]
         else:
             response = cbsStareDict['default']
-        
+
+        # if needed pull last played info from API
+        if '$lastplayed' in response:
+            # get user id of target
+            headers = headers = {'Client-ID': ClientID, 'Accept': 'application/vnd.twitchtv.v5+json'}
+            userResult = Parent.GetRequest("https://api.twitch.tv/kraken/users?login={0}".format(target.lower()), headers)
+
+            jsonResult = json.loads(userResult)
+
+            # extract user id
+            if jsonResult['status'] != 200:
+                Parent.Log(ScriptName, "lookup user: {0}".format(jsonResult))
+                return
+            else:
+                jsonResult = json.loads(jsonResult['response'])
+                if jsonResult['users']:
+                    jsonResult = jsonResult['users'][0] # get first and only result
+                    jsonUserId = jsonResult['_id']
+
+                    # get channel data for last streamed game
+                    channelResult = Parent.GetRequest("https://api.twitch.tv/kraken/channels/{0}".format(jsonUserId), headers)
+
+                    jsonResult = json.loads(channelResult)
+
+                    if jsonResult['status'] != 200:
+                        Parent.Log(ScriptName, "lookup user: {0}".format(jsonResult))
+                        return
+                    else:
+                        jsonResult = json.loads(jsonResult['response'])
+                        if jsonResult['game']:
+                            lastplayed = jsonResult['game']
+                        else:
+                            Parent.Log(ScriptName, "Could not read last game!")
+                else:
+                    # don't do a shoutout if the user doesn't exist
+                    Parent.Log(ScriptName, "Unknown Twitch Username")
+                    return
+
         # replace params in response string
-        response = Parse(response, data.UserName, data.UserName, target, target, data.Message)
-        prefix = Parse(prefix, data.UserName, data.UserName, target, target, data.Message)
-        suffix = Parse(suffix, data.UserName, data.UserName, target, target, data.Message)
+        response = Parse(response, data.UserName, data.UserName, lastplayed, target, target, data.Message)
+        prefix = Parse(prefix, data.UserName, data.UserName, lastplayed, target, target, data.Message)
+        suffix = Parse(suffix, data.UserName, data.UserName, lastplayed, target, target, data.Message)
 
         # show alert?
         if cbsScriptSettings.ShowAlert:
             
             # get profile picture link
-            headers = {'Client-ID': ClientID, 'Accept': 'application/vnd.twitchtv.v5+json'}
-            result = Parent.GetRequest("https://api.twitch.tv/kraken/users?login={0}".format(target.lower()), headers)
+            # only hit API if not already cached
+            if not userResult:
+                headers = {'Client-ID': ClientID, 'Accept': 'application/vnd.twitchtv.v5+json'}
+                userResult = Parent.GetRequest("https://api.twitch.tv/kraken/users?login={0}".format(target.lower()), headers)
             
-            jsonResult = json.loads(result)
+            jsonResult = json.loads(userResult)
 
             if jsonResult['status'] != 200:
                 Parent.Log(ScriptName, "lookup user: {0}".format(jsonResult))
@@ -185,6 +229,7 @@ def Execute(data):
                         response = "{0} {1} {2}".format(prefix.strip(), response.strip(), suffix.strip())
                     
                         # undocumented api endpoint from https://discuss.dev.twitch.tv/t/whats-the-best-way-to-get-a-streamers-emoteset/11253 
+                        # TODO: endpoint removed, probably moving to this https://twitchemotes.com/apidocs
                         productInfo = Parent.GetRequest("https://api.twitch.tv/api/channels/{0}/product".format(Parent.GetChannelName().lower()), headers)
                         jsonEmotes = json.loads(productInfo)
 
@@ -224,11 +269,12 @@ def Tick():
 #---------------------------
 #   [Optional] Parse method (Allows you to create your own custom $parameters) 
 #---------------------------
-def Parse(parseString, userid, username, targetid, targetname, message):
+def Parse(parseString, userid, username, lastplayed, targetid, targetname, message):
     parseString = parseString.replace('$userid', userid)
     parseString = parseString.replace('$username', username)
     parseString = parseString.replace('$targetid', targetid)
     parseString = parseString.replace('$targetname', targetname)
+    parseString = parseString.replace('$lastplayed', lastplayed)
     parseString = parseString.replace('$url', 'https://www.twitch.tv/{0}'.format(targetname.lower()))
     parseString = parseString.replace('$shorturl', 'twitch.tv/{0}'.format(targetname.lower()))
     return parseString
