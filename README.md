@@ -60,6 +60,8 @@ div .alertbox {
     animation-duration: 20s;
     word-wrap: break-word;
     word-break: keep-all;
+    display: flex;
+    align-items: center;  /* Remove this to disable vertical centering */
 }
 @keyframes slidein {
     0%   {right:-800px;}
