@@ -28,7 +28,7 @@ public class CPHInline
     {
         // Load configuration
         LoadStaresConfig();
-        LoadClientId();
+        
 
         // Check if the command is triggered
         if (args.ContainsKey("command") && (args["command"].ToString().ToLower() == Command || Array.Exists(CommandAlts.Split(' '), s => s == args["command"].ToString().ToLower())))
@@ -104,37 +104,7 @@ public class CPHInline
         }
     }
 
-    private Dictionary<string, object> GetTwitchUser(string username)
-    {
-        string url = $"https://api.twitch.tv/helix/users?login={username}";
-        var response = CPH.GetRequest(url, new Dictionary<string, string> { { "Client-ID", clientId }, { "Authorization", $"Bearer {CPH.GetGlobalVar<string>("twitchAccessToken", true)}" } });
-        var json = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, object>>(response);
-        if (json.ContainsKey("data"))
-        {
-            var data = (Newtonsoft.Json.Linq.JArray)json["data"];
-            if (data.Count > 0)
-            {
-                return data[0].ToObject<Dictionary<string, object>>();
-            }
-        }
-        return null;
-    }
-
-    private Dictionary<string, object> GetTwitchChannel(string userId)
-    {
-        string url = $"https://api.twitch.tv/helix/channels?broadcaster_id={userId}";
-        var response = CPH.GetRequest(url, new Dictionary<string, string> { { "Client-ID", clientId }, { "Authorization", $"Bearer {CPH.GetGlobalVar<string>("twitchAccessToken", true)}" } });
-        var json = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, object>>(response);
-        if (json.ContainsKey("data"))
-        {
-            var data = (Newtonsoft.Json.Linq.JArray)json["data"];
-            if (data.Count > 0)
-            {
-                return data[0].ToObject<Dictionary<string, object>>();
-            }
-        }
-        return null;
-    }
+    
 
 
     private string GetStareMessage(string target)
