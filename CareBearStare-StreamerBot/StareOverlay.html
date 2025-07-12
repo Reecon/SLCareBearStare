@@ -1,0 +1,64 @@
+<html>
+<meta charset="UTF-8">
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+
+<body>
+  <div id="app">
+    <div v-html="my_event"></div>
+  </div>
+</body>
+
+<script>
+  var vm = new Vue({
+    el: '#app',
+    data: {
+      my_event: "",
+      socket: null
+    },
+    methods: {
+      connectws: function() {
+        if ("WebSocket" in window) {
+          vm.socket = new WebSocket("ws://127.0.0.1:8080/");
+
+          vm.socket.onopen = function() {
+            vm.socket.send(JSON.stringify({
+              "request": "Subscribe",
+              "events": {
+                "general": [
+                  "Custom"
+                ]
+              },
+              "id": "carebearstare"
+            }));
+          };
+
+          vm.socket.onmessage = function(event) {
+            var wsdata = JSON.parse(event.data);
+            if (wsdata.event.type == 'Custom') {
+              var data = wsdata.data;
+              vm.my_event = 
+                `<div class="alertbox">
+                  <img class="logo" src="${data.logo}"></img>
+                  <div class="response">${data.response}</div>
+                <div>`;
+            }
+          };
+
+          vm.socket.onclose = function() {
+            setTimeout(function() {
+              vm.connectws();
+            }, 5000);
+          };
+        } else {
+          console.log("Websockets not supported");
+        }
+      }
+    },
+    mounted: function () {
+      this.connectws();
+    }
+  });
+</script>
+
+</html>
