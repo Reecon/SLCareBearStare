@@ -29,8 +29,7 @@ This is a migration of the CareBearStare script from Streamlabs Chatbot to Strea
     *   Set the action to the "CareBearStare Tripwire" action.
 
 3.  **Files:**
-    *   Place the `stares.conf` and `clientid.conf` files in the root of your Streamer.bot installation directory.
-    *   You can get a Client ID from the [Twitch Developer Portal](https://dev.twitch.tv/console).
+    *   Place the `stares.conf` file in the root of your Streamer.bot installation directory.
 
 4.  **Overlay:**
     *   Add a new browser source in your streaming software.
